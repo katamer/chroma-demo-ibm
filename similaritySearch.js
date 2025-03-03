@@ -24,7 +24,6 @@ const collectionName = "my_grocery_collection";
 const default_emd = new DefaultEmbeddingFunction();
 
 const ids = texts.map((_, index) => `food_${index + 1}`);
-const embeddingsData = await default_emd.generate(texts);
 
 async function main() {
     try {
@@ -32,15 +31,18 @@ async function main() {
             name: collectionName,
             embeddings: default_emd,
 
-        })
+        });
+
+        const embeddingsData = await default_emd.generate(texts);
+
         collection.add({
             ids,
             documents: texts,
-            embeddings: embeddingsData,ata,
+            embeddings: embeddingsData,
         })
 
         const allItems = await collection.get();
-        console.log(allItems);
+        await performSimilaritySearch(collection, allItems);
         
     }
     catch(error) {
@@ -62,7 +64,17 @@ async function performSimilaritySearch(collection, allItems) {
     }
 
     for(let i = 0; i < 3; i++) {
-        co
+        const id = results.ids[0][i];
+        const score = results.distances[0][i];
+        const text = allItems.documents[allItems.ids.indexOf(id)];
+        
+        if(!text) {
+            console.log(` - ID: ${id}, Text: 'Text not available', Score: ${score}`);
+        }
+        else {
+            console.log(` - ID: ${id}, Text: '${text}', Score: ${score}`);
+        }
     }
-
 }
+
+main();
